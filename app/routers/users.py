@@ -15,7 +15,10 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.get("/me", response_model=UserRead)
-async def get_current_user_info(current_user: UserRead = Depends(get_current_user), db: sessionmaker = Depends(get_db)):
+async def get_current_user_info(
+    current_user: UserRead = Depends(get_current_user),
+    db: sessionmaker = Depends(get_db),
+):
     rate_limiter.check_rate_limit(str(current_user.id))
     db_user = UserRepository.get_user_by_id(db, current_user.id)
     if not db_user:
@@ -42,7 +45,9 @@ async def update_avatar(
     )
 
     # Оновлюємо URL аватара користувача
-    updated_user = UserRepository.update_user_avatar(db, current_user.id, result["secure_url"])
+    updated_user = UserRepository.update_user_avatar(
+        db, current_user.id, result["secure_url"]
+    )
     if not updated_user:
         raise HTTPException(status_code=404, detail="User not found")
 
