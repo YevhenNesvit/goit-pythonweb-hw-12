@@ -1,10 +1,14 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
 from sqlalchemy.orm import relationship
 from app.database import Base
 from passlib.context import CryptContext
+import enum
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+class UserRole(str, enum.Enum):
+    ADMIN = "admin"
+    USER = "user"
 
 class User(Base):
     __tablename__ = "users"
@@ -17,6 +21,7 @@ class User(Base):
     avatar_url = Column(String, nullable=True)
     reset_token = Column(String, nullable=True)
     reset_token_expires = Column(DateTime, nullable=True)
+    role = Column(Enum(UserRole), default=UserRole.USER)
 
     contacts = relationship("Contact", back_populates="user")
 

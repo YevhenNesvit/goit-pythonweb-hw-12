@@ -3,11 +3,14 @@ from app.auth.jwt_handler import get_current_user
 from app.middleware.rate_limiter import rate_limiter
 import cloudinary
 import cloudinary.uploader
-from app.schemas.user import UserRead
+from app.schemas.user import UserRead, UserCreate
 import os
 from dotenv import load_dotenv
 from app.database import get_db, sessionmaker
 from app.repositories.user_repository import UserRepository
+from app.auth.permissions import check_role
+from app.models.user import UserRole, User
+from sqlalchemy.orm import Session
 
 load_dotenv()
 
@@ -34,6 +37,7 @@ cloudinary.config(
 
 
 @router.patch("/me/avatar", response_model=UserRead)
+@check_role(UserRole.ADMIN)
 async def update_avatar(
     file: UploadFile = File(...),
     current_user: UserRead = Depends(get_current_user),
@@ -52,3 +56,15 @@ async def update_avatar(
         raise HTTPException(status_code=404, detail="User not found")
 
     return updated_user
+
+
+@router.post("/admin", response_model=UserRead)
+@check_role(UserRole.ADMIN)
+async def create_admin(
+    user: UserCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    user.role = UserRole.ADMIN
+    db_user = UserRepository.create_user(db, user)
+    return db_user

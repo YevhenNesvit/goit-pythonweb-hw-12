@@ -19,7 +19,7 @@ conf = ConnectionConfig(
 )
 
 
-def send_verification_email(email: str, token: str):
+async def send_verification_email(email: str, token: str):
     verification_url = f"http://localhost:8000/auth/verify/{token}"
 
     message = MessageSchema(

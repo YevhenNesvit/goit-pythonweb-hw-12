@@ -13,7 +13,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - SECRET_KEY=${SECRET_KEY}
       - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     env_file:
       - .env
 
@@ -21,6 +21,10 @@ services:
     image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=1011
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=contacts
     ports:
       - "5432:5432"
 
