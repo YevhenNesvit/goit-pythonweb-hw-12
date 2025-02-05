@@ -1,17 +1,15 @@
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from pathlib import Path
-from dotenv import load_dotenv
+from ..config import MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM
 import os
-
-load_dotenv()
 
 # Вказуємо шлях до папки з шаблонами
 template_path = Path("app/templates")
 
 conf = ConnectionConfig(
-    MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
-    MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
-    MAIL_FROM=os.getenv("MAIL_FROM"),
+    MAIL_USERNAME=MAIL_USERNAME,
+    MAIL_PASSWORD=MAIL_PASSWORD,
+    MAIL_FROM=MAIL_FROM,
     MAIL_PORT=465,
     MAIL_SERVER="smtp.meta.ua",
     MAIL_STARTTLS=False,
@@ -21,7 +19,7 @@ conf = ConnectionConfig(
 )
 
 
-async def send_verification_email(email: str, token: str):
+def send_verification_email(email: str, token: str):
     verification_url = f"http://localhost:8000/auth/verify/{token}"
 
     message = MessageSchema(
@@ -32,4 +30,18 @@ async def send_verification_email(email: str, token: str):
     )
 
     fm = FastMail(conf)
-    await fm.send_message(message, template_name="verification.html")
+    fm.send_message(message, template_name="verification.html")
+
+
+async def send_password_reset_email(email: str, token: str):
+    reset_url = f"http://localhost:8000/auth/reset-password?token={token}"
+
+    message = MessageSchema(
+        subject="Password Reset Request",
+        recipients=[email],
+        template_body={"reset_url": reset_url},
+        subtype="html",
+    )
+
+    fm = FastMail(conf)
+    await fm.send_message(message, template_name="password_reset.html")

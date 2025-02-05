@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate
+from datetime import datetime, timedelta
+import secrets
 
 
 class UserRepository:
@@ -39,3 +41,29 @@ class UserRepository:
             db.refresh(user)
             return user
         return None
+
+    def create_password_reset_token(db: Session, email: str):
+        """Створює токен для скидання пароля"""
+        user = UserRepository.get_user_by_email(db, email)
+        if user:
+            reset_token = secrets.token_urlsafe(32)
+            user.reset_token = reset_token
+            user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
+            db.commit()
+            return reset_token
+        return None
+
+    def reset_password(db: Session, token: str, new_password: str):
+        """Скидає пароль за токеном"""
+        user = db.query(User).filter(
+            User.reset_token == token, 
+            User.reset_token_expires > datetime.utcnow()
+        ).first()
+
+        if user:
+            user.hashed_password = User.get_password_hash(new_password)
+            user.reset_token = None
+            user.reset_token_expires = None
+            db.commit()
+            return True
+        return False

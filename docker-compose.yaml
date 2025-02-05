@@ -8,9 +8,12 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - redis
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - SECRET_KEY=${SECRET_KEY}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_HOST}
     env_file:
       - .env
 
@@ -21,13 +24,31 @@ services:
     ports:
       - "5432:5432"
 
-  alembic:
+  alembic-revision:
+    build: .
+    command: sh -c "alembic revision --autogenerate -m \"Initial migration\""
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+
+  alembic-upgrade:
     build: .
     command: alembic upgrade head
     volumes:
       - .:/app
     depends_on:
       - db
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
       
 volumes:
   postgres_data:

@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserRead, Token
+from app.schemas.user import UserCreate, UserRead, Token, PasswordReset
 from datetime import timedelta
 from app.auth.jwt_handler import create_access_token
 from fastapi.security import OAuth2PasswordRequestForm
 from ..config import ACCESS_TOKEN_EXPIRE_MINUTES
 import secrets
-from app.services.email import send_verification_email
+from app.services.email_service import send_verification_email, send_password_reset_email
 from app.repositories.user_repository import UserRepository
 
 router = APIRouter(tags=["Authentication"])
@@ -54,3 +54,30 @@ def login(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/password-reset-request")
+async def request_password_reset(
+    email: str, 
+    db: Session = Depends(get_db)
+):
+    reset_token = UserRepository.create_password_reset_token(db, email)
+    if reset_token:
+        # Надіслати email з токеном скидання
+        await send_password_reset_email(email, reset_token)
+        return {"message": "Password reset link sent"}
+    raise HTTPException(status_code=404, detail="User not found")
+
+@router.post("/password-reset")
+def reset_password(
+    reset: PasswordReset, 
+    db: Session = Depends(get_db)
+):
+    success = UserRepository.reset_password(
+        db, 
+        reset.token, 
+        reset.new_password
+    )
+    if success:
+        return {"message": "Password reset successfully"}
+    raise HTTPException(status_code=400, detail="Invalid or expired token")
