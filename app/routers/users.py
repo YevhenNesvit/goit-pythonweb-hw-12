@@ -53,12 +53,24 @@ async def update_avatar(
     current_user: UserRead = Depends(get_current_user),
     db: sessionmaker = Depends(get_db),
 ):
-    # Завантажуємо файл в Cloudinary
+    """
+    Оновлює аватар користувача.
+
+    Args:
+        file (UploadFile): Файл зображення для аватара
+        current_user (UserRead): Поточний користувач
+        db (sessionmaker): Сесія бази даних
+
+    Returns:
+        UserRead: Користувач з оновленим аватаром
+
+    Raises:
+        HTTPException: Якщо користувача не знайдено
+    """
     result = cloudinary.uploader.upload(
         file.file, folder="avatars", public_id=f"user_{current_user.id}_avatar"
     )
 
-    # Оновлюємо URL аватара користувача
     updated_user = UserRepository.update_user_avatar(
         db, current_user.id, result["secure_url"]
     )
@@ -75,6 +87,17 @@ async def create_admin(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    Створює нового адміністратора.
+
+    Args:
+        user (UserCreate): Дані нового адміністратора
+        db (Session): Сесія бази даних
+        current_user (User): Поточний користувач
+
+    Returns:
+        UserRead: Створений адміністратор
+    """
     user.role = UserRole.ADMIN
     db_user = UserRepository.create_user(db, user)
     return db_user
