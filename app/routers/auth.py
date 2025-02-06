@@ -8,14 +8,30 @@ from app.auth.jwt_handler import create_access_token
 from fastapi.security import OAuth2PasswordRequestForm
 from ..config import ACCESS_TOKEN_EXPIRE_MINUTES
 import secrets
-from app.services.email_service import send_verification_email, send_password_reset_email
-from app.repositories.user_repository import UserRepository
+from app.services.email_service import (
+    send_verification_email,
+    send_password_reset_email,
+)
+from app.repositories.user_repo import UserRepository
 
 router = APIRouter(tags=["Authentication"])
 
 
 @router.post("/verify/{token}")
 async def verify_email(token: str, db: Session = Depends(get_db)):
+    """
+    Верифікація email адреси користувача.
+
+    Args:
+        token (str): Токен верифікації
+        db (Session): Сесія бази даних
+
+    Returns:
+        dict: Повідомлення про успішну верифікацію
+
+    Raises:
+        HTTPException: Якщо токен недійсний
+    """
     user = UserRepository.verify_user_email(db, token)
     if not user:
         raise HTTPException(status_code=404, detail="Invalid verification token")
@@ -57,10 +73,7 @@ def login(
 
 
 @router.post("/password-reset-request")
-async def request_password_reset(
-    email: str, 
-    db: Session = Depends(get_db)
-):
+async def request_password_reset(email: str, db: Session = Depends(get_db)):
     reset_token = UserRepository.create_password_reset_token(db, email)
     if reset_token:
         # Надіслати email з токеном скидання
@@ -68,16 +81,10 @@ async def request_password_reset(
         return {"message": "Password reset link sent"}
     raise HTTPException(status_code=404, detail="User not found")
 
+
 @router.post("/password-reset")
-def reset_password(
-    reset: PasswordReset, 
-    db: Session = Depends(get_db)
-):
-    success = UserRepository.reset_password(
-        db, 
-        reset.token, 
-        reset.new_password
-    )
+def reset_password(reset: PasswordReset, db: Session = Depends(get_db)):
+    success = UserRepository.reset_password(db, reset.token, reset.new_password)
     if success:
         return {"message": "Password reset successfully"}
     raise HTTPException(status_code=400, detail="Invalid or expired token")

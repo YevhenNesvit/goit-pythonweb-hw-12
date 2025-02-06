@@ -5,11 +5,28 @@ from typing import Dict, List
 
 
 class RateLimiter:
+    """
+    Middleware для обмеження кількості запитів.
+
+    Attributes:
+        requests_per_minute (int): Максимальна кількість запитів за хвилину
+        requests (Dict[str, List[float]]): Словник для відстеження запитів
+    """
+
     def __init__(self, requests_per_minute: int = 10):
         self.requests_per_minute = requests_per_minute
         self.requests: Dict[str, List[float]] = defaultdict(list)
 
     def check_rate_limit(self, user_id: str):
+        """
+        Перевіряє, чи не перевищено ліміт запитів для користувача.
+
+        Args:
+            user_id (str): Ідентифікатор користувача
+
+        Raises:
+            HTTPException: Якщо перевищено ліміт запитів
+        """
         now = time.time()
         minute_ago = now - 60
 

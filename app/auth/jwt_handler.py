@@ -7,10 +7,10 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
 from app.services.redis_service import redis_service
-import os
 from ..config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 
 def get_current_user(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
@@ -39,16 +39,30 @@ def get_current_user(
         raise credentials_exception
 
     # Кешуємо користувача
-    redis_service.set_user_cache(user.id, {
-        "id": user.id, 
-        "email": user.email, 
-        "is_verified": user.is_verified,
-        "avatar_url": user.avatar_url
-    })
+    redis_service.set_user_cache(
+        user.id,
+        {
+            "id": user.id,
+            "email": user.email,
+            "is_verified": user.is_verified,
+            "avatar_url": user.avatar_url,
+        },
+    )
 
     return user
 
+
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    """
+    Створює JWT токен доступу.
+
+    Args:
+        data (dict): Дані для включення в токен
+        expires_delta (Optional[timedelta]): Термін дії токена
+
+    Returns:
+        str: Згенерований JWT токен
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now() + expires_delta

@@ -21,6 +21,19 @@ def search_contacts(
     last_name: Optional[str] = Query(None),
     email: Optional[str] = Query(None),
 ):
+    """
+    Пошук контактів за різними критеріями.
+
+    Args:
+        db (Session): Сесія бази даних
+        current_user (User): Поточний користувач
+        first_name (Optional[str]): Ім'я для пошуку
+        last_name (Optional[str]): Прізвище для пошуку
+        email (Optional[str]): Email для пошуку
+
+    Returns:
+        List[Contact]: Список знайдених контактів
+    """
     query = db.query(Contact).filter(Contact.user_id == current_user.id)
 
     if first_name:

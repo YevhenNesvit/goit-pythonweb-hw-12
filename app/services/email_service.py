@@ -1,7 +1,6 @@
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from pathlib import Path
 from ..config import MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM
-import os
 
 # Вказуємо шлях до папки з шаблонами
 template_path = Path("app/templates")
@@ -20,6 +19,13 @@ conf = ConnectionConfig(
 
 
 async def send_verification_email(email: str, token: str):
+    """
+    Надсилає email для верифікації адреси користувача.
+
+    Args:
+        email (str): Email адреса користувача
+        token (str): Токен верифікації
+    """
     verification_url = f"http://localhost:8000/auth/verify/{token}"
 
     message = MessageSchema(
@@ -34,6 +40,13 @@ async def send_verification_email(email: str, token: str):
 
 
 async def send_password_reset_email(email: str, token: str):
+    """
+    Надсилає email для скидання пароля.
+
+    Args:
+        email (str): Email адреса користувача
+        token (str): Токен для скидання пароля
+    """
     reset_url = f"http://localhost:8000/auth/reset-password?token={token}"
 
     message = MessageSchema(

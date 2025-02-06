@@ -6,11 +6,35 @@ import secrets
 
 
 class UserRepository:
+    """
+    Репозиторій для роботи з користувачами в базі даних.
+    """
 
     def get_user_by_email(db: Session, email: str):
+        """
+        Знаходить користувача за email адресою.
+
+        Args:
+            db (Session): Сесія бази даних
+            email (str): Email адреса користувача
+
+        Returns:
+            Optional[User]: Знайдений користувач або None
+        """
         return db.query(User).filter(User.email == email).first()
 
     def create_user(db: Session, user: UserCreate, verification_token: str):
+        """
+        Створює нового користувача.
+
+        Args:
+            db (Session): Сесія бази даних
+            user (UserCreate): Дані нового користувача
+            verification_token (str): Токен для верифікації email
+
+        Returns:
+            User: Створений користувач
+        """
         db_user = User(
             email=user.email,
             hashed_password=User.get_password_hash(user.password),
@@ -55,10 +79,13 @@ class UserRepository:
 
     def reset_password(db: Session, token: str, new_password: str):
         """Скидає пароль за токеном"""
-        user = db.query(User).filter(
-            User.reset_token == token, 
-            User.reset_token_expires > datetime.utcnow()
-        ).first()
+        user = (
+            db.query(User)
+            .filter(
+                User.reset_token == token, User.reset_token_expires > datetime.utcnow()
+            )
+            .first()
+        )
 
         if user:
             user.hashed_password = User.get_password_hash(new_password)

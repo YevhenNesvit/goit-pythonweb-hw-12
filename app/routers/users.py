@@ -4,15 +4,12 @@ from app.middleware.rate_limiter import rate_limiter
 import cloudinary
 import cloudinary.uploader
 from app.schemas.user import UserRead, UserCreate
-import os
-from dotenv import load_dotenv
 from app.database import get_db, sessionmaker
-from app.repositories.user_repository import UserRepository
+from app.repositories.user_repo import UserRepository
 from app.auth.permissions import check_role
 from app.models.user import UserRole, User
 from sqlalchemy.orm import Session
-
-load_dotenv()
+from ..config import CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, CLOUDINARY_CLOUD_NAME
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -22,6 +19,19 @@ async def get_current_user_info(
     current_user: UserRead = Depends(get_current_user),
     db: sessionmaker = Depends(get_db),
 ):
+    """
+    Отримує інформацію про поточного користувача.
+
+    Args:
+        current_user (UserRead): Поточний користувач
+        db (sessionmaker): Сесія бази даних
+
+    Returns:
+        UserRead: Інформація про користувача
+
+    Raises:
+        HTTPException: Якщо користувача не знайдено
+    """
     rate_limiter.check_rate_limit(str(current_user.id))
     db_user = UserRepository.get_user_by_id(db, current_user.id)
     if not db_user:
@@ -30,9 +40,9 @@ async def get_current_user_info(
 
 
 cloudinary.config(
-    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    cloud_name=CLOUDINARY_CLOUD_NAME,
+    api_key=CLOUDINARY_API_KEY,
+    api_secret=CLOUDINARY_API_SECRET,
 )
 
 
@@ -63,7 +73,7 @@ async def update_avatar(
 async def create_admin(
     user: UserCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     user.role = UserRole.ADMIN
     db_user = UserRepository.create_user(db, user)

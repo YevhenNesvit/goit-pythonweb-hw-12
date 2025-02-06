@@ -6,9 +6,11 @@ import enum
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 class UserRole(str, enum.Enum):
     ADMIN = "admin"
     USER = "user"
+
 
 class User(Base):
     __tablename__ = "users"
@@ -26,7 +28,26 @@ class User(Base):
     contacts = relationship("Contact", back_populates="user")
 
     def get_password_hash(password: str):
+        """
+        Створює хеш пароля.
+
+        Args:
+            password (str): Пароль у відкритому вигляді
+
+        Returns:
+            str: Хешований пароль
+        """
         return pwd_context.hash(password)
 
     def verify_password(plain_password: str, hashed_password: str):
+        """
+        Перевіряє відповідність пароля його хешу.
+
+        Args:
+            plain_password (str): Пароль у відкритому вигляді
+            hashed_password (str): Хешований пароль
+
+        Returns:
+            bool: True якщо пароль відповідає хешу, False інакше
+        """
         return pwd_context.verify(plain_password, hashed_password)
