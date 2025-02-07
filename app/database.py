@@ -14,6 +14,15 @@ Base = declarative_base()
 
 # Функція для отримання сесії
 def get_db():
+    """
+    Генерує сесію бази даних для використання в залежностях FastAPI.
+
+    Yields:
+        Session: Сесія бази даних
+
+    Приклад використання:
+        db = next(get_db())
+    """
     db = SessionLocal()
     try:
         yield db

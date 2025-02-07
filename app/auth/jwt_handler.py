@@ -15,6 +15,19 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 def get_current_user(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
+    """
+    Отримує поточного користувача з JWT токена.
+
+    Args:
+        token (str): JWT токен
+        db (Session): Сесія бази даних
+
+    Returns:
+        User: Поточний користувач
+
+    Raises:
+        HTTPException: Якщо токен недійсний або користувач не знайдений
+    """
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate credentials",

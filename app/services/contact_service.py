@@ -43,6 +43,20 @@ class ContactService:
         return self.repo.get_user_contacts(db, current_user)
 
     def get_contact_by_id(self, db: Session, contact_id: int, current_user: User):
+        """
+        Отримує контакт за його ID, перевіряючи права доступу користувача.
+
+        Args:
+            db (Session): Сесія бази даних
+            contact_id (int): ID контакту
+            current_user (User): Поточний користувач
+
+        Returns:
+            Contact: Знайдений контакт
+
+        Raises:
+            HTTPException: Якщо контакт не знайдено або користувач не має прав доступу
+        """
         contact = self.repo.get_by_id(db, contact_id)
         if not contact:
             raise HTTPException(status_code=404, detail="Contact not found")
