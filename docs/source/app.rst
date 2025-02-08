@@ -1,6 +1,11 @@
 app package
 ===========
 
+.. automodule:: app
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Subpackages
 -----------
 
@@ -18,34 +23,9 @@ Subpackages
 Submodules
 ----------
 
-app.config module
------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: app.config
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-app.database module
--------------------
-
-.. automodule:: app.database
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-app.main module
----------------
-
-.. automodule:: app.main
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: app
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   app.config
+   app.database
+   app.main
