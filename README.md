@@ -38,11 +38,12 @@
    ```sh
    docker-compose up --build
    ```
-4. **Застосуйте міграції**
-   ```sh
-   docker-compose run alembic-upgrade
-   ```
-5. **API буде доступне за адресою:** `https://contacts-n7n0.onrender.com/docs`
+4. **API буде доступне за адресою:** `https://contacts-n7n0.onrender.com/docs`
 
+5. **Адмін юзер для тестування**
+    ```sh
+    login - admin@example.com
+    password - admin
+    ```
 ## Автор
 - [Євген Несвіт](https://github.com/YevhenNesvit/goit-pythonweb-hw-12)
