@@ -36,7 +36,7 @@ async def send_verification_email(email: str, token: str):
     )
 
     fm = FastMail(conf)
-    fm.send_message(message, template_name="verification.html")
+    await fm.send_message(message, template_name="verification.html")
 
 
 async def send_password_reset_email(email: str, token: str):

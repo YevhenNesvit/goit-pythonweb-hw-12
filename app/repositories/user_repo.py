@@ -9,7 +9,7 @@ class UserRepository:
     """
     Репозиторій для роботи з користувачами в базі даних.
     """
-
+    @staticmethod
     def get_user_by_email(db: Session, email: str):
         """
         Знаходить користувача за email адресою.
@@ -23,6 +23,7 @@ class UserRepository:
         """
         return db.query(User).filter(User.email == email).first()
 
+    @staticmethod
     def create_user(db: Session, user: UserCreate, verification_token: str):
         """
         Створює нового користувача.
