@@ -3,12 +3,13 @@ from app.repositories.contact_repo import ContactRepository
 from app.schemas.user import UserCreate
 from app.models.user import UserRole
 
+
 def test_create_user(db):
     repo = UserRepository()
     user_data = {
         "email": "test@example.com",
         "password": "password",
-        "role": UserRole.USER
+        "role": UserRole.USER,
     }
     verification_token = "test_token"
 

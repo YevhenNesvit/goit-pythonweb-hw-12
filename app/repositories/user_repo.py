@@ -9,6 +9,7 @@ class UserRepository:
     """
     Репозиторій для роботи з користувачами в базі даних.
     """
+
     @staticmethod
     def get_user_by_email(db: Session, email: str):
         """
