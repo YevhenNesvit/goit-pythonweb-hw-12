@@ -39,6 +39,7 @@ class UserRepository:
         db_user = User(
             email=user.email,
             hashed_password=User.get_password_hash(user.password),
+            role=user.role,
             verification_token=verification_token,
         )
         db.add(db_user)

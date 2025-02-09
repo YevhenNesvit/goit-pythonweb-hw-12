@@ -10,6 +10,7 @@ from app.auth.permissions import check_role
 from app.models.user import UserRole, User
 from sqlalchemy.orm import Session
 from ..config import CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, CLOUDINARY_CLOUD_NAME
+import secrets
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -98,6 +99,8 @@ async def create_admin(
     Returns:
         UserRead: Створений адміністратор
     """
+
+    verification_token = secrets.token_urlsafe(32)
     user.role = UserRole.ADMIN
-    db_user = UserRepository.create_user(db, user)
+    db_user = UserRepository.create_user(db, user, verification_token)
     return db_user
